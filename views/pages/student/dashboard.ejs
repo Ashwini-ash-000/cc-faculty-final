@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Student Dashboard</h1>
+    <% if (locals.success) { %>
+        <p style="color: green;"><%= success %></p>
+    <% } %>
+    <% if (locals.error) { %>
+        <p style="color: red;"><%= error %></p>
+    <% } %>
+    <p>Welcome, Student!</p>
+    <p><a href="/submit-feedback">Submit New Feedback</a></p>
+    <p><a href="/submit-suggestion">Submit Suggestion</a></p>
+    <p><a href="/logout">Logout</a></p>
+    <p><a href="/">Back to Home</a></p>
+</body>
+</html>

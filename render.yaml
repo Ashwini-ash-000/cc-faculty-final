@@ -1,0 +1,17 @@
+# render.yaml
+services:
+  - type: web
+    name: faculty-feedback-portal # Name of your web service
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: faculty-feedback # <<< REPLACE WITH YOUR RENDER DATABASE NAME
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true # Render will generate a strong secret for you
+        # OR: value: your_super_strong_production_session_secret # If you want to set it manually
+      - key: NODE_ENV
+        value: production

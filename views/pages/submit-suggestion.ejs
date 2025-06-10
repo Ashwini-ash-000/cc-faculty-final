@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Suggestion</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Submit Suggestion</h1>
+    <% if (locals.success) { %>
+        <p style="color: green;"><%= success %></p>
+    <% } %>
+    <% if (locals.error) { %>
+        <p style="color: red;"><%= error %></p>
+    <% } %>
+    <form action="/submit-suggestion" method="POST">
+        <label for="suggestion">Your Suggestion:</label>
+        <textarea id="suggestion" name="suggestion" required></textarea><br>
+        <label for="userType">User Type:</label>
+        <select id="userType" name="userType">
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+        </select><br>
+        <button type="submit">Submit Suggestion</button>
+    </form>
+    <p><a href="/">Back to Home</a></p>
+</body>
+</html>
