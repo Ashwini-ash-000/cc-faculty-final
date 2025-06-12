@@ -1,0 +1,47 @@
+<%- include('../../partials/head'); %>
+<%- include('../../partials/header'); %>
+
+    <div class="form-container">
+        <h2>Edit Student Profile</h2>
+        <% if (errors && errors.length > 0) { %>
+            <div class="alert alert-danger">
+                <% errors.forEach(function(error) { %>
+                    <p><%= error.msg %></p>
+                <% }); %>
+            </div>
+        <% } %>
+        <form action="/student/profile/edit" method="POST">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" class="form-control" value="<%= student.first_name || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" class="form-control" value="<%= student.last_name || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="rollNumber">Roll Number:</label>
+                <input type="text" id="rollNumber" name="rollNumber" class="form-control" value="<%= student.roll_number || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="major">Major:</label>
+                <input type="text" id="major" name="major" class="form-control" value="<%= student.major || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="semester">Semester:</label>
+                <input type="number" id="semester" name="semester" class="form-control" value="<%= student.semester || '' %>" required min="1">
+            </div>
+            <div class="form-group">
+                <label for="contactEmail">Contact Email:</label>
+                <input type="email" id="contactEmail" name="contactEmail" class="form-control" value="<%= student.contact_email || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" value="<%= student.phone_number || '' %>">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+            <a href="/student/profile" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+
+<%- include('../../partials/footer'); %>

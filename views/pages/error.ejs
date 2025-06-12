@@ -1,0 +1,13 @@
+<%- include('partials/head'); %>
+<%- include('partials/header'); %>
+
+    <div class="error-container text-center">
+        <h1><%= title %></h1>
+        <p class="lead"><%= message %></p>
+        <% if (error.stack) { %>
+            <pre class="error-stack"><%= error.stack %></pre>
+        <% } %>
+        <a href="/" class="btn btn-primary mt-4">Go to Homepage</a>
+    </div>
+
+<%- include('partials/footer'); %>

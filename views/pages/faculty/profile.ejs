@@ -1,0 +1,66 @@
+<%- include('../../partials/head'); %>
+<%- include('../../partials/header'); %>
+
+    <h1>My Faculty Profile</h1>
+
+    <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-success">
+            <% messages.forEach(function(message) { %>
+                <p><%= message %></p>
+            <% }); %>
+        </div>
+    <% } %>
+
+    <% if (!faculty) { %>
+        <div class="alert alert-info">
+            <p>You don't have a faculty profile yet. Please <a href="/faculty/profile/edit">create one</a>.</p>
+        </div>
+    <% } else { %>
+        <div class="profile-details">
+            <div class="profile-item">
+                <strong>Username:</strong> <span><%= user.username %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Email:</strong> <span><%= user.email %></span>
+            </div>
+            <div class="profile-item">
+                <strong>First Name:</strong> <span><%= faculty.first_name %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Last Name:</strong> <span><%= faculty.last_name %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Employee ID:</strong> <span><%= faculty.employee_id %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Department:</strong> <span><%= faculty.department %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Designation:</strong> <span><%= faculty.designation %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Contact Email:</strong> <span><%= faculty.contact_email %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Phone Number:</strong> <span><%= faculty.phone_number || 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Office Location:</strong> <span><%= faculty.office_location || 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Research Interests:</strong> <span><%= faculty.research_interests && faculty.research_interests.length > 0 ? faculty.research_interests.join(', ') : 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Office Hours:</strong> <span><%= faculty.office_hours || 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Member Since:</strong> <span><%= new Date(faculty.created_at).toLocaleDateString() %></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="/faculty/profile/edit" class="btn btn-primary">Edit Profile</a>
+        </div>
+    <% } %>
+
+<%- include('../../partials/footer'); %>

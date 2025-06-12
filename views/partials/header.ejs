@@ -1,0 +1,64 @@
+<header class="navbar">
+        <div class="container">
+            <a href="/" class="logo">Academic Portal</a>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <% if (currentUser) { %>
+                        <% if (currentUser.role === 'faculty') { %>
+                            <li><a href="/faculty/dashboard">Dashboard</a></li>
+                            <li><a href="/faculty/profile">Profile</a></li>
+                            <li><a href="/faculty/feedback">My Feedback</a></li>
+                            <% } else if (currentUser.role === 'student') { %>
+                            <li><a href="/student/dashboard">Dashboard</a></li>
+                            <li><a href="/student/profile">Profile</a></li>
+                            <li><a href="/student/submit-feedback">Submit Feedback</a></li>
+                            <li><a href="/student/submit-suggestion">Submit Suggestion</a></li>
+                            <% } %>
+                        <li><a href="/logout">Logout (<%= currentUser.username %>)</a></li>
+                    <% } else { %>
+                        <li><a href="/login-faculty">Faculty Login</a></li>
+                        <li><a href="/login-student">Student Login</a></li>
+                        <li><a href="/register-faculty">Register Faculty</a></li>
+                        <li><a href="/register-student">Register Student</a></li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="container"> <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+            <div class="alert alert-danger">
+                <% errors.forEach(function(error) { %>
+                    <p class="alert-message"><%= error.msg %></p>
+                <% }); %>
+            </div>
+        <% } %>
+        <% if (typeof messages !== 'undefined' && messages.length > 0) { %>
+            <div class="alert alert-success">
+                <% messages.forEach(function(message) { %>
+                    <p class="alert-message"><%= message %></p>
+                <% }); %>
+            </div>
+        <% } %>
+        ```
+
+**Note on Messages:** I've added a basic message display logic in `header.ejs` and `footer.ejs`. For this to work, ensure your routes are passing `messages: req.session.messages` to the EJS template and clearing `req.session.messages` afterwards. The `alert` classes would need corresponding CSS.
+
+---
+
+## 17. `views/pages/home.ejs`
+
+```ejs
+<%- include('../partials/head'); %>
+<%- include('../partials/header'); %>
+
+    <div class="jumbotron text-center">
+        <h1>Welcome to the Academic Portal!</h1>
+        <p class="lead">Your one-stop solution for faculty and student management.</p>
+        <hr>
+        <p>Login or register to get started.</p>
+        <a href="/login-faculty" class="btn btn-primary">Faculty Login</a>
+        <a href="/login-student" class="btn btn-secondary">Student Login</a>
+    </div>
+
+<%- include('../partials/footer'); %>

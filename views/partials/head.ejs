@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Portal' %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+<body>
+    ```
+
+---
+
+## 15. `views/partials/footer.ejs`
+
+```ejs
+    </main> <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section about">
+                    <h3>About Portal</h3>
+                    <p>A comprehensive platform for managing academic activities for faculty and students.</p>
+                </div>
+                <div class="footer-section links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <% if (currentUser && currentUser.role === 'faculty') { %>
+                            <li><a href="/faculty/dashboard">Faculty Dashboard</a></li>
+                            <li><a href="/faculty/profile">Faculty Profile</a></li>
+                        <% } else if (currentUser && currentUser.role === 'student') { %>
+                            <li><a href="/student/dashboard">Student Dashboard</a></li>
+                            <li><a href="/student/profile">Student Profile</a></li>
+                        <% } %>
+                        <li><a href="/submit-suggestion">Submit Suggestion</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section contact-info">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-envelope"></i> support@yourdomain.com</p>
+                    <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                </div>
+                <div class="footer-section social">
+                    <h3>Follow Us</h3>
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <%= new Date().getFullYear() %> Your Institution Name. All rights reserved.</p>
+                <% if (typeof appVersion !== 'undefined') { %>
+                    <span class="app-version">Version: <%= appVersion %></span>
+                <% } %>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+
+    <% if (typeof pageSpecificScript !== 'undefined') { %>
+        <script src="/js/<%= pageSpecificScript %>.js"></script>
+    <% } %>
+
+    <script>
+        // A simple way to display messages if you're not using connect-flash
+        const messages = document.querySelectorAll('.alert-message');
+        if (messages.length > 0) {
+            messages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.display = 'none';
+                }, 5000); // Hide after 5 seconds
+            });
+        }
+    </script>
+</body>
+</html>

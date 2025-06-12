@@ -1,23 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+<%- include('../../partials/head'); %>
+<%- include('../../partials/header'); %>
+
     <h1>Student Dashboard</h1>
-    <% if (locals.success) { %>
-        <p style="color: green;"><%= success %></p>
+    <p class="lead">Welcome, <%= user.username %>! (<%= user.role %>)</p>
+
+    <% if (!student) { %>
+        <div class="alert alert-warning">
+            <p>Your student profile is not yet set up. Please <a href="/student/profile/edit">complete your profile</a> to unlock all features.</p>
+        </div>
+    <% } else { %>
+        <div class="dashboard-cards">
+            <div class="card">
+                <i class="fas fa-user-graduate icon"></i>
+                <h3>My Profile</h3>
+                <p>View and update your personal and academic details.</p>
+                <a href="/student/profile" class="btn btn-secondary">View Profile</a>
+            </div>
+            <div class="card">
+                <i class="fas fa-comment-dots icon"></i>
+                <h3>Submit Feedback</h3>
+                <p>Provide feedback for faculty or courses.</p>
+                <a href="/student/submit-feedback" class="btn btn-secondary">Submit Now</a>
+            </div>
+            <div class="card">
+                <i class="fas fa-lightbulb icon"></i>
+                <h3>Submit Suggestion</h3>
+                <p>Share your ideas to improve the portal.</p>
+                <a href="/student/submit-suggestion" class="btn btn-secondary">Submit Now</a>
+            </div>
+            </div>
+
+        <div class="recent-activities mt-5">
+            <h3>Your Recent Activities</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Recent Feedbacks</h4>
+                    <% if (recentFeedbacks.length > 0) { %>
+                        <ul class="list-group">
+                            <% recentFeedbacks.slice(0, 5).forEach(feedback => { %>
+                                <li class="list-group-item">
+                                    <strong>Rating: <%= feedback.rating %></strong>
+                                    <p>"<%= feedback.comment.substring(0, 100) %><% if (feedback.comment.length > 100) { %>...<% } %>"</p>
+                                    <small>Submitted on <%= new Date(feedback.submitted_at).toLocaleDateString() %></small>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <% } else { %>
+                        <p>No recent feedback submitted.</p>
+                    <% } %>
+                </div>
+                <div class="col-md-6">
+                    <h4>Recent Suggestions</h4>
+                    <% if (recentSuggestions.length > 0) { %>
+                        <ul class="list-group">
+                            <% recentSuggestions.slice(0, 5).forEach(suggestion => { %>
+                                <li class="list-group-item">
+                                    <strong><%= suggestion.subject %></strong> - Status: <span class="badge badge-<%= suggestion.status === 'pending' ? 'warning' : (suggestion.status === 'reviewed' ? 'info' : 'success') %>"><%= suggestion.status %></span>
+                                    <p>"<%= suggestion.description.substring(0, 100) %><% if (suggestion.description.length > 100) { %>...<% } %>"</p>
+                                    <small>Submitted on <%= new Date(suggestion.submitted_at).toLocaleDateString() %></small>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <% } else { %>
+                        <p>No recent suggestions submitted.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
     <% } %>
-    <% if (locals.error) { %>
-        <p style="color: red;"><%= error %></p>
-    <% } %>
-    <p>Welcome, Student!</p>
-    <p><a href="/submit-feedback">Submit New Feedback</a></p>
-    <p><a href="/submit-suggestion">Submit Suggestion</a></p>
-    <p><a href="/logout">Logout</a></p>
-    <p><a href="/">Back to Home</a></p>
-</body>
-</html>
+
+<%- include('../../partials/footer'); %>

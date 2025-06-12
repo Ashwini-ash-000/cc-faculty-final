@@ -1,0 +1,59 @@
+<%- include('../../partials/head'); %>
+<%- include('../../partials/header'); %>
+
+    <div class="form-container">
+        <h2>Edit Faculty Profile</h2>
+        <% if (errors && errors.length > 0) { %>
+            <div class="alert alert-danger">
+                <% errors.forEach(function(error) { %>
+                    <p><%= error.msg %></p>
+                <% }); %>
+            </div>
+        <% } %>
+        <form action="/faculty/profile/edit" method="POST">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" class="form-control" value="<%= faculty.first_name || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" class="form-control" value="<%= faculty.last_name || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="employeeId">Employee ID:</label>
+                <input type="text" id="employeeId" name="employeeId" class="form-control" value="<%= faculty.employee_id || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="department">Department:</label>
+                <input type="text" id="department" name="department" class="form-control" value="<%= faculty.department || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="designation">Designation:</label>
+                <input type="text" id="designation" name="designation" class="form-control" value="<%= faculty.designation || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="contactEmail">Contact Email:</label>
+                <input type="email" id="contactEmail" name="contactEmail" class="form-control" value="<%= faculty.contact_email || '' %>" required>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="text" id="phoneNumber" name="phoneNumber" class="form-control" value="<%= faculty.phone_number || '' %>">
+            </div>
+            <div class="form-group">
+                <label for="officeLocation">Office Location:</label>
+                <input type="text" id="officeLocation" name="officeLocation" class="form-control" value="<%= faculty.office_location || '' %>">
+            </div>
+            <div class="form-group">
+                <label for="researchInterests">Research Interests (comma-separated):</label>
+                <input type="text" id="researchInterests" name="researchInterests" class="form-control" value="<%= faculty.research_interests ? faculty.research_interests.join(', ') : '' %>">
+            </div>
+            <div class="form-group">
+                <label for="officeHours">Office Hours:</label>
+                <input type="text" id="officeHours" name="officeHours" class="form-control" value="<%= faculty.office_hours || '' %>">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+            <a href="/faculty/profile" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+
+<%- include('../../partials/footer'); %>

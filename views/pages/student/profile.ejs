@@ -1,0 +1,57 @@
+<%- include('../../partials/head'); %>
+<%- include('../../partials/header'); %>
+
+    <h1>My Student Profile</h1>
+
+    <% if (messages && messages.length > 0) { %>
+        <div class="alert alert-success">
+            <% messages.forEach(function(message) { %>
+                <p><%= message %></p>
+            <% }); %>
+        </div>
+    <% } %>
+
+    <% if (!student) { %>
+        <div class="alert alert-info">
+            <p>You don't have a student profile yet. Please <a href="/student/profile/edit">create one</a>.</p>
+        </div>
+    <% } else { %>
+        <div class="profile-details">
+            <div class="profile-item">
+                <strong>Username:</strong> <span><%= user.username %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Email:</strong> <span><%= user.email %></span>
+            </div>
+            <div class="profile-item">
+                <strong>First Name:</strong> <span><%= student.first_name %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Last Name:</strong> <span><%= student.last_name %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Roll Number:</strong> <span><%= student.roll_number %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Major:</strong> <span><%= student.major %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Semester:</strong> <span><%= student.semester %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Contact Email:</strong> <span><%= student.contact_email %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Phone Number:</strong> <span><%= student.phone_number || 'N/A' %></span>
+            </div>
+            <div class="profile-item">
+                <strong>Member Since:</strong> <span><%= new Date(student.created_at).toLocaleDateString() %></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="/student/profile/edit" class="btn btn-primary">Edit Profile</a>
+        </div>
+    <% } %>
+
+<%- include('../../partials/footer'); %>
