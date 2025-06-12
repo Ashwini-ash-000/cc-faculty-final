@@ -6,6 +6,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bodyParser = require('body-parser');
+const pgSession = require('connect-pg-simple')(session); // Import the pg-simple store
 const { Pool } = require('pg'); // PostgreSQL client
 
 // --- Database Connection (PostgreSQL) ---
@@ -46,9 +47,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Session Middleware
+// Correct Session Middleware (using connect-pg-simple)
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    store: new pgSession({
+        pool: pool, // Connection pool
+        tableName: 'session' // Use a table named 'session' to store sessions
+    }),
+    secret: process.env.SESSION_SECRET, // Make sure this is set in Render env vars!
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -58,7 +63,7 @@ app.use(session({
     }
 }));
 
-// Passport Authentication Middleware
+// Passport Authentication Middleware - This MUST come AFTER session middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
