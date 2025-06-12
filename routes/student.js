@@ -1,19 +1,25 @@
+// routes/student.js
 const express = require('express');
 const router = express.Router();
 const { ensureStudent } = require('../middleware/authMiddleware');
+const { Pool } = require('pg'); // Import Pool
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
-// Import models
-const StudentProfile = require('../models/StudentProfile');
-const Feedback = require('../models/Feedback');
-const Suggestion = require('../models/Suggestion');
-const FacultyProfile = require('../models/FacultyProfile'); // To select faculty for feedback
+// Import models and pass the pool to them
+const StudentProfile = require('../models/StudentProfile')(pool);
+const Feedback = require('../models/Feedback')(pool);
+const Suggestion = require('../models/Suggestion')(pool);
+const FacultyProfile = require('../models/FacultyProfile')(pool); // To select faculty for feedback
 
 // Student Dashboard
 router.get('/dashboard', ensureStudent, async (req, res) => {
     try {
-        const studentProfile = await StudentProfile().findByUserId(req.user.id);
-        const recentFeedbacks = await Feedback().findByStudentId(studentProfile ? studentProfile.id : -1);
-        const recentSuggestions = await Suggestion().findByUserId(req.user.id);
+        const studentProfile = await StudentProfile.findByUserId(req.user.id);
+        const recentFeedbacks = studentProfile ? await Feedback.findByStudentId(studentProfile.id) : [];
+        const recentSuggestions = await Suggestion.findByUserId(req.user.id);
 
         res.render('pages/student/dashboard', {
             title: 'Student Dashboard',
@@ -21,28 +27,29 @@ router.get('/dashboard', ensureStudent, async (req, res) => {
             student: studentProfile,
             recentFeedbacks: recentFeedbacks,
             recentSuggestions: recentSuggestions,
-            messages: req.session.messages // For success/error messages
+            messages: req.session.messages || []
         });
         req.session.messages = [];
     } catch (err) {
         console.error('Student Dashboard Error:', err);
-        res.status(500).render('error', { title: 'Error', message: 'Failed to load dashboard data.' });
+        res.status(500).render('pages/error', { title: 'Error', message: 'Failed to load dashboard data.' });
     }
 });
 
 // Submit Feedback Page
 router.get('/submit-feedback', ensureStudent, async (req, res) => {
     try {
-        const faculties = await FacultyProfile().findAll(); // Get all faculties to select from
+        const faculties = await FacultyProfile.findAll();
         res.render('pages/student/submit-feedback', {
             title: 'Submit Feedback',
             user: req.user,
             faculties: faculties,
-            errors: []
+            errors: req.session.messages || []
         });
+        req.session.messages = [];
     } catch (err) {
         console.error('Submit Feedback GET Error:', err);
-        res.status(500).render('error', { title: 'Error', message: 'Failed to load feedback form.' });
+        res.status(500).render('pages/error', { title: 'Error', message: 'Failed to load feedback form.' });
     }
 });
 
@@ -59,45 +66,30 @@ router.post('/submit-feedback', ensureStudent, async (req, res) => {
     }
 
     if (errors.length > 0) {
-        const faculties = await FacultyProfile().findAll();
-        return res.render('pages/student/submit-feedback', {
-            title: 'Submit Feedback',
-            user: req.user,
-            faculties: faculties,
-            errors,
-            ...req.body // Repopulate form
-        });
+        const faculties = await FacultyProfile.findAll();
+        req.session.messages = errors;
+        return res.redirect('/student/submit-feedback'); // Redirect to GET route to show errors
     }
 
     try {
-        const studentProfile = await StudentProfile().findByUserId(req.user.id);
+        const studentProfile = await StudentProfile.findByUserId(req.user.id);
         if (!studentProfile) {
             errors.push({ msg: 'Student profile not found. Please complete your profile first.' });
-            const faculties = await FacultyProfile().findAll();
-            return res.render('pages/student/submit-feedback', {
-                title: 'Submit Feedback',
-                user: req.user,
-                faculties: faculties,
-                errors,
-                ...req.body
-            });
+            const faculties = await FacultyProfile.findAll();
+            req.session.messages = errors;
+            return res.redirect('/student/submit-feedback');
         }
 
-        await Feedback().create(studentProfile.id, parseInt(facultyId), courseId ? parseInt(courseId) : null, parseInt(rating), comment);
+        await Feedback.create(studentProfile.id, parseInt(facultyId), courseId ? parseInt(courseId) : null, parseInt(rating), comment);
         req.session.messages = ['Feedback submitted successfully!'];
         res.redirect('/student/dashboard');
 
     } catch (err) {
         console.error('Submit Feedback POST Error:', err);
         errors.push({ msg: 'Error submitting feedback. Please try again.' });
-        const faculties = await FacultyProfile().findAll();
-        res.render('pages/student/submit-feedback', {
-            title: 'Submit Feedback',
-            user: req.user,
-            faculties: faculties,
-            errors,
-            ...req.body
-        });
+        const faculties = await FacultyProfile.findAll();
+        req.session.messages = errors;
+        res.redirect('/student/submit-feedback');
     }
 });
 
@@ -106,8 +98,9 @@ router.get('/submit-suggestion', ensureStudent, (req, res) => {
     res.render('pages/submit-suggestion', {
         title: 'Submit Suggestion',
         user: req.user,
-        errors: []
+        errors: req.session.messages || []
     });
+    req.session.messages = [];
 });
 
 // Submit Suggestion Handle
@@ -120,60 +113,53 @@ router.post('/submit-suggestion', ensureStudent, async (req, res) => {
     }
 
     if (errors.length > 0) {
-        return res.render('pages/submit-suggestion', {
-            title: 'Submit Suggestion',
-            user: req.user,
-            errors,
-            ...req.body
-        });
+        req.session.messages = errors;
+        return res.redirect('/student/submit-suggestion');
     }
 
     try {
-        await Suggestion().create(req.user.id, subject, description);
+        await Suggestion.create(req.user.id, subject, description);
         req.session.messages = ['Suggestion submitted successfully!'];
         res.redirect('/student/dashboard');
     } catch (err) {
         console.error('Submit Suggestion POST Error:', err);
         errors.push({ msg: 'Error submitting suggestion. Please try again.' });
-        res.render('pages/submit-suggestion', {
-            title: 'Submit Suggestion',
-            user: req.user,
-            errors,
-            ...req.body
-        });
+        req.session.messages = errors;
+        res.redirect('/student/submit-suggestion');
     }
 });
 
-// Student Profile Page (Similar to faculty, but for students)
+// Student Profile Page
 router.get('/profile', ensureStudent, async (req, res) => {
     try {
-        const studentProfile = await StudentProfile().findByUserId(req.user.id);
+        const studentProfile = await StudentProfile.findByUserId(req.user.id);
         res.render('pages/student/profile', {
             title: 'My Student Profile',
             user: req.user,
             student: studentProfile,
-            messages: req.session.messages
+            messages: req.session.messages || []
         });
         req.session.messages = [];
     } catch (err) {
         console.error('Student Profile Error:', err);
-        res.status(500).render('error', { title: 'Error', message: 'Failed to load student profile.' });
+        res.status(500).render('pages/error', { title: 'Error', message: 'Failed to load student profile.' });
     }
 });
 
 // Edit Student Profile GET
 router.get('/profile/edit', ensureStudent, async (req, res) => {
     try {
-        const studentProfile = await StudentProfile().findByUserId(req.user.id);
+        const studentProfile = await StudentProfile.findByUserId(req.user.id);
         res.render('pages/student/edit-profile', {
             title: 'Edit Student Profile',
             user: req.user,
             student: studentProfile || {},
-            errors: []
+            errors: req.session.messages || []
         });
+        req.session.messages = [];
     } catch (err) {
         console.error('Edit Student Profile GET Error:', err);
-        res.status(500).render('error', { title: 'Error', message: 'Failed to load edit student profile page.' });
+        res.status(500).render('pages/error', { title: 'Error', message: 'Failed to load edit student profile page.' });
     }
 });
 
@@ -187,34 +173,28 @@ router.post('/profile/edit', ensureStudent, async (req, res) => {
     }
 
     if (errors.length > 0) {
-        return res.render('pages/student/edit-profile', {
-            title: 'Edit Student Profile',
-            user: req.user,
-            student: req.body,
-            errors
-        });
+        req.session.messages = errors;
+        return res.redirect('/student/profile/edit');
     }
 
     try {
-        let studentProfile = await StudentProfile().findByUserId(req.user.id);
+        let studentProfile = await StudentProfile.findByUserId(req.user.id);
         const data = {
             firstName, lastName, rollNumber, major, semester: parseInt(semester), contactEmail, phoneNumber
         };
 
         if (studentProfile) {
-            // Update existing profile
-            await StudentProfile().update(req.user.id, data);
+            await StudentProfile.update(req.user.id, data);
             req.session.messages = ['Profile updated successfully.'];
         } else {
-            // Create new profile
-            await StudentProfile().create(req.user.id, ...Object.values(data));
+            await StudentProfile.create(req.user.id, data.firstName, data.lastName, data.rollNumber, data.major, data.semester, data.contactEmail, data.phoneNumber);
             req.session.messages = ['Profile created successfully.'];
         }
         res.redirect('/student/profile');
 
     } catch (err) {
         console.error('Student Profile Update Error:', err);
-        if (err.code === '23505') { // PostgreSQL unique violation error code
+        if (err.code === '23505') {
             if (err.detail.includes('roll_number')) {
                 errors.push({ msg: `Roll Number '${rollNumber}' is already in use by another student.` });
             } else if (err.detail.includes('contact_email')) {
@@ -225,14 +205,9 @@ router.post('/profile/edit', ensureStudent, async (req, res) => {
         } else {
             errors.push({ msg: 'An error occurred while saving your profile. Please try again.' });
         }
-        res.render('pages/student/edit-profile', {
-            title: 'Edit Student Profile',
-            user: req.user,
-            student: req.body,
-            errors
-        });
+        req.session.messages = errors;
+        res.redirect('/student/profile/edit');
     }
 });
-
 
 module.exports = router;

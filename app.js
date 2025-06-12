@@ -53,7 +53,7 @@ app.use(session({
         pool: pool, // Connection pool
         tableName: 'session' // Use a table named 'session' to store sessions
     }),
-    secret: process.env.SESSION_SECRET, // Make sure this is set in Render env vars!
+    secret: process.env.SESSION_SECRET, // <--- THIS LINE IS THE PROBLEM
     resave: false,
     saveUninitialized: false,
     cookie: {
